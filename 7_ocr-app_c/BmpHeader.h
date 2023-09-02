@@ -6,7 +6,8 @@
 typedef struct {
   uint16_t signature; // BM
   uint32_t fileSize; 
-  uint32_t reserved;
+  uint16_t reserved1;
+  uint16_t reserved2;
   uint32_t dataOffset;
   uint32_t headerSize;
   int32_t width;

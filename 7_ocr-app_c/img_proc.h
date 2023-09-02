@@ -8,6 +8,8 @@
 
 // Function prototypes
 void get_img_props(ProcList * , BmpHeader * );
+void byte_check(char * , int);
+void hmem_diag(char * );
 void proc_img();
 
 #endif
