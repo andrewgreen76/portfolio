@@ -1,15 +1,13 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 int main() {
   printf("\n");
 
   int num = 42;
-  char str[20];
-  sprintf(str, "%d", num);
-  printf("%s", str);
+  // Printing with indentation
+  printf("Indented output:\n");
+  printf("%1s: %d\n", "Number", num); // Use %10s to specify a width of 10 characters for the label
   
-  printf("\n");  
+  printf("\n");
   return 0;
 }
