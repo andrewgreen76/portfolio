@@ -1,36 +1,54 @@
 #include "img_proc.h"
-
-void get_img_props(ProcList * pm, BmpHeader * imgh54)
+void get_img_props(ProcList * pm, BmpHeader * imgHdr)
 {
-  hmem_diag(pm->fname);
+  //hmem_diag(pm->name);
   
   printf("Caching image data from %s ...\n", pm->fname);
-  FILE *srcbmp = fopen(pm->fname, "rb");
-  fread(imgh54, sizeof(imgh54), 1, srcbmp);
+
+  FILE * src = fopen(pm->fname, "rb");
+  fread(imgHdr, sizeof(imgHdr), 1, src);
+  printf("Sig: %x \n", imgHdr->signature);
+  printf("File size: %x \n", imgHdr->fileSize);
+  printf("Res 1: %x \n", imgHdr->reserved1);
+  printf("Res 2: %x \n", imgHdr->reserved2);
+  printf("Offset: %x \n", imgHdr->dataOffset);
+  fclose(src);
   
-  char loSigByte = (char)(imgh54->signature & 0xFF);
-  char hiSigByte = (char)((imgh54->signature & 0xFF00) >>8);
+  hmem_diag(pm->fname);
+  /*
+  FILE *srcBmp = fopen(pm->fname, "rb");
+  fread(imgHdr, sizeof(imgHdr), 1, srcBmp);
+  printf("Signature: %x\n", imgHdr->signature ); 
+  printf("Total size of header: %x\n", imgHdr->fileSize);
+  printf("Reserved field 1: %x\n", imgHdr->reserved1);
+  printf("Reserved field 2: %x\n", imgHdr->reserved2);
+  printf("Data offset: %x\n", imgHdr->dataOffset);
+  */
+  /*
+  char loSigByte = (char)(imgHdr->signature & 0xFF);
+  char hiSigByte = (char)((imgHdr->signature & 0xFF00) >>8);
   printf("Signature: %c%c\n", loSigByte, hiSigByte ); 
-  printf("Total size of header: %d\n", imgh54->fileSize);
-  printf("Reserved field 1: %04x\n", imgh54->reserved1);
-  printf("Reserved field 2: %04x\n", imgh54->reserved2);
-  printf("Data offset: %08x\n", imgh54->dataOffset);
-  printf("Info header size: %08x\n", imgh54->headerSize);
-  printf("Width: %d\n", imgh54->width);
-  printf("Height: %d\n", imgh54->height);
-  
-  fclose(srcbmp);
+  printf("Total size of header: %d\n", imgHdr->fileSize);
+  printf("Reserved field 1: %x\n", imgHdr->reserved1);
+  printf("Reserved field 2: %x\n", imgHdr->reserved2);
+  printf("Data offset: %x\n", imgHdr->dataOffset);
+  printf("Info header size: %x\n", imgHdr->headerSize);
+  printf("Width: %d\n", imgHdr->width);
+  printf("Height: %d\n", imgHdr->height);
+  */
+  //fclose(srcBmp);
   return;
 }
 
-void byte_check(char * fname, int bytei)
+unsigned char byte_check(char * fname, int readBytes) //readBytes: index -> numBytes ..
 {
+  readBytes++;                                        // .. here
   FILE *fbyte = fopen(fname, "rb");
   unsigned char c;
-  for(int i=0; i<bytei; i++) fread(&c, 1, 1, fbyte);
-  printf("Byte check @ %d: %08x \n", bytei, c );
+  for(int i=0; i<readBytes; i++) fread(&c, 1, 1, fbyte);
+  printf("Byte check @ %d: %08x \n", readBytes, c );
   fclose(fbyte);
-  return;
+  return c;
 }
 
 void hmem_diag(char * fname)

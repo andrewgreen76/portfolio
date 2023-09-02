@@ -1,13 +1,19 @@
 #include <stdio.h>
+#include "DoctorByte.h"
 
 int main() {
   printf("\n");
 
-  int num = 42;
-  // Printing with indentation
-  printf("Indented output:\n");
-  printf("%1s: %d\n", "Number", num); // Use %10s to specify a width of 10 characters for the label
-  
+  DoctorByte docHead; 
+  FILE * src = fopen("2.bmp", "rb");
+  fread(&docHead, sizeof(docHead), 1, src);
+  printf("Sig: %x \n", docHead.signature);
+  printf("File size: %x \n", docHead.fileSize);
+  printf("Res 1: %x \n", docHead.reserved1);
+  printf("Res 2: %x \n", docHead.reserved2);
+  printf("Offset: %x \n", docHead.dataOffset);
+
+  fclose(src);
   printf("\n");
   return 0;
 }
