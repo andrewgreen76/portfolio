@@ -1,4 +1,5 @@
 #include "img_proc.h"
+
 void get_img_props(ProcList * pm, BmpHeader * imgHdr)
 {
   //hmem_diag(pm->name);
@@ -6,7 +7,7 @@ void get_img_props(ProcList * pm, BmpHeader * imgHdr)
   printf("Caching image data from %s ...\n", pm->fname);
 
   FILE * src = fopen(pm->fname, "rb");
-  fread(imgHdr, sizeof(imgHdr), 1, src);
+  fread(imgHdr, sizeof * imgHdr, 1, src);
   printf("Sig: %x \n", imgHdr->signature);
   printf("File size: %x \n", imgHdr->fileSize);
   printf("Res 1: %x \n", imgHdr->reserved1);

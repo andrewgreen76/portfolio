@@ -7,7 +7,7 @@ void run_core_funcs(void)
     ProcList pm;
     BmpHeader bh;    
     get_fname(pm.fname);
-    
+    /*    
     FILE * src = fopen(pm.fname, "rb");
     fread(&bh, sizeof(bh), 1, src);
     printf("Sig: %x \n", bh.signature);
@@ -16,7 +16,7 @@ void run_core_funcs(void)
     printf("Res 2: %x \n", bh.reserved2);
     printf("Offset: %x \n", bh.dataOffset);
     fclose(src);
-    
+    */
     
     get_img_props(&pm, &bh);
     //get_bounded_vals();
