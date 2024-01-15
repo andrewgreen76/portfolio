@@ -1,13 +1,33 @@
 ------------------------------------------------------------
  . Practice creating, destroying, and managing processes.
+
+============================================================
+========================== PARENT ==========================
 ============================================================
 
-Outline :
- |
- . prompt	    - parent thread
- . shell response   - child thread ( fork() , wait() , exec() )
-    . parent waits
-    -> child finishes
-    -> parent resumes , prompts again 
+cmd = 0
 
+while(1) 
+    prompt "> "
+    get line  
+    parse line 
+    extract cmd
+    
+    if(cmd=="exit") break
+
+    fork/wait/exec(cmd) 
+
+============================================================
+========================== CHILD ===========================
+============================================================
+ -> shell response	  
+    -> execute the command 
+    -> child finishes
+ -> parent resumes , prompts again 
+
+============================================================
+============================================================
+============================================================
+
+wish>		// as in "wish >_"
 _

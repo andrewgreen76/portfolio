@@ -8,7 +8,26 @@
 
 
 int main(int argc, char *argv[]) {
-  // YOUR CODE HERE
 
+/*
+  cmd = 0
+
+while(1) 
+    prompt "> "
+    get line  
+    parse line 
+    extract cmd
+    
+    if(cmd=="exit") break
+
+    fork/wait/exec(cmd) 
+
+/////////// CHILD ///////////
+ -> shell response	  
+    -> execute the command 
+    -> child finishes
+ -> parent resumes , prompts again 
+*/
+  
   return 0;
 }
