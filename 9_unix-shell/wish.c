@@ -11,6 +11,7 @@
 
 
 int sh_mode = 0; // 0 - interactive , 1 - batch
+int req_exit = 0;
 FILE * fptr;
 void interact();
 void proc_batch(char *);
@@ -50,27 +51,22 @@ int main(int argc, char *argv[]) {
 // ============= INTERACTIVE MODE : ==============
 // ===============================================
 void interact(){
-  int req_exit = 0;
   while(!req_exit){
     printf("wish> ");
-    req_exit = eat_shln();
+    eat_shln();
   }
 }
 
 // ===============================================
-int eat_shln(){
+void eat_shln(){
   char shln[100];
   void * shln_state;
-  int req_exit = 1;
   
   shln_state = (void *) fgets(shln, sizeof(shln), stdin); // captures cmdln from shell 
   if(shln_state) sscanf(shln , "%s" , shln);       // extracts the 1st word  
   
   if( strcmp(shln , "exit")==0 ){
-    return req_exit;
-  }
-  else{  
-    return !req_exit;
+    req_exit = 1;
   }
 }
 // ===============================================
