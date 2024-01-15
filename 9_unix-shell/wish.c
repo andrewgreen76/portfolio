@@ -10,18 +10,27 @@
 #include <string.h>  
 
 
-//int mode = 0; // 0 - interactive , 1 - batch
+int sh_mode = 0; // 0 - interactive , 1 - batch
+FILE * fptr;
 void interact();
 void proc_batch(char *);
+int eat_shln();
+void * eat_batln();
 
 
 int main(int argc, char *argv[]) {
   printf("\n");
   assert(argc<=2); // argv[1] = batch-file name
 
-  if(argc==1) interact();
-  else proc_batch(argv[1]);
-  
+  if(argc==1){
+    sh_mode = 0;
+    interact();
+  }
+  else{
+    sh_mode = 1;
+    proc_batch(argv[1]);
+  }
+
 /*
 ........
     fork/wait/exec(cmd) 
@@ -34,21 +43,59 @@ int main(int argc, char *argv[]) {
 */
   
   printf("\n");
-  
   return 0;
 }
 
-
-void interact(){  
-  char cl[100];
-  while(1){
+// ===============================================
+// ============= INTERACTIVE MODE : ==============
+// ===============================================
+void interact(){
+  int req_exit = 0;
+  while(!req_exit){
     printf("wish> ");
-    fgets(cl, sizeof(cl), stdin); // captures the line
-    sscanf(cl , "%s" , cl);       // extracts the 1st word 
-    if( !strcmp(cl,"exit") ) break;
+    req_exit = eat_shln();
   }
 }
 
+// ===============================================
+int eat_shln(){
+  char shln[100];
+  void * shln_state;
+  int req_exit = 1;
+  
+  shln_state = (void *) fgets(shln, sizeof(shln), stdin); // captures cmdln from shell 
+  if(shln_state) sscanf(shln , "%s" , shln);       // extracts the 1st word  
+  
+  if( strcmp(shln , "exit")==0 ){
+    return req_exit;
+  }
+  else{  
+    return !req_exit;
+  }
+}
+// ===============================================
+// ================ BATCH MODE : =================
+// ===============================================
+void proc_batch(char * fname){
+  fptr = fopen(fname , "r");
+  
+  if(fptr){
+    while( eat_batln(fptr) != NULL );
+    fclose(fptr);
+  }
+  else{
+    //... do nothing ... 
+  }
+}
 
-void proc_batch(char * batch){
+// ===============================================
+void * eat_batln(){
+  char batln[100];
+  void * batln_state;
+  
+  batln_state = fgets(cl, sizeof(cl), fptr); // captures cmdln from shell
+  if(batln_state) sscanf(cl , "%s" , cl);       // extracts the 1st word
+    
+  //strcmp(cl,"exit");
+  return batln_state;
 }
