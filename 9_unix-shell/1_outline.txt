@@ -1,0 +1,13 @@
+------------------------------------------------------------
+ . Practice creating, destroying, and managing processes.
+============================================================
+
+Outline :
+ |
+ . prompt	    - parent thread
+ . shell response   - child thread ( fork() , wait() , exec() )
+    . parent waits
+    -> child finishes
+    -> parent resumes , prompts again 
+
+_
