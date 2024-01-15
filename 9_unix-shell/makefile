@@ -2,12 +2,12 @@ CC = gcc
 CFLAGS = -Wall -Wextra -std=c11
 LDFLAGS = -lpthread
 
-SRC = prog.c
-DEPS = queue.c
-HEADERS = queue.h
+SRC = wish.c
+#DEPS = queue.c
+#HEADERS = queue.h
 
 # The target executable
-TARGET = prog
+TARGET = wish
 
 all: $(TARGET)
 
