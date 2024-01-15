@@ -10,20 +10,17 @@
 #include <string.h>  
 
 
-int mode = 0; // 0 - interactive , 1 - batch
+//int mode = 0; // 0 - interactive , 1 - batch
+void interact();
+void proc_batch(char *);
 
 
 int main(int argc, char *argv[]) {
-  char cl[100];
   printf("\n");
   assert(argc<=2); // argv[1] = batch-file name
 
-  while(1){
-    printf("wish> ");
-    fgets(cl, sizeof(cl), stdin); // captures the line
-    sscanf(cl , "%s" , cl);       // extracts the 1st word 
-    if( !strcmp(cl,"exit") ) break;
-  }
+  if(argc==1) interact();
+  else proc_batch(argv[1]);
   
 /*
 ........
@@ -39,4 +36,19 @@ int main(int argc, char *argv[]) {
   printf("\n");
   
   return 0;
+}
+
+
+void interact(){  
+  char cl[100];
+  while(1){
+    printf("wish> ");
+    fgets(cl, sizeof(cl), stdin); // captures the line
+    sscanf(cl , "%s" , cl);       // extracts the 1st word 
+    if( !strcmp(cl,"exit") ) break;
+  }
+}
+
+
+void proc_batch(char * batch){
 }
