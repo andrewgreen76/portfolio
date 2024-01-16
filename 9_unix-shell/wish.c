@@ -26,15 +26,10 @@ int main(int argc, char *argv[]) {
     printError();
     exit(1);
   }
-  // ============================================
+  // ================= Enter a mode : ===================
   sh_mode = argc;
-  
-  if(sh_mode == INTERACTIVE_MODE) {
-    interact();
-  }
-  else{
-    use_batch(argv[1]);
-  }
+  if(sh_mode == INTERACTIVE_MODE) interact();
+  else use_batch(argv[1]);
 /*
     fork/wait/execv(cmd) 
 
