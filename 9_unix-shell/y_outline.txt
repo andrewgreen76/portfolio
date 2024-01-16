@@ -1,5 +1,16 @@
 
 ------------------------------------------------------------
+Catch all errors outlines in the instructions. 
+------------------------------------------------------------
+Available syscalls :
+ . access()
+ . chdir() 
+------------------------------------------------------------
+Built-in command :
+ . one that I've implemented
+ . exit , cd , path
+ . everything else -> access(); 
+------------------------------------------------------------
 To check if a file exists in a directory and is executable, consider using the access() system call.
 ------------------------------------------------------------
 SHELL SEARCH PATH : 

@@ -1,4 +1,12 @@
 #include "wish.h"
+#include <ctype.h>  // isspace
+#include <regex.h>  // regcomp, regexec, regfree
+#include <stdio.h>  // fopen, fclose, fileno, getline, feof
+#include <stdlib.h> // exit
+#include <sys/types.h>
+#include <sys/wait.h> // waitpid
+#include <string.h> 
+#include <assert.h> 
 
 
 int sh_mode = INTERACTIVE_MODE; // 1 - interactive , 2 - batch
