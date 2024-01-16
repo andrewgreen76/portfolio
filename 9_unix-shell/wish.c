@@ -16,6 +16,7 @@ FILE * fptr;
 void interact();
 void proc_batch(char *);
 void eat_cl();
+void digest_cmd(char * );
 
 
 int main(int argc, char *argv[]) {
@@ -74,25 +75,30 @@ void proc_batch(char * fname){
 
 // ===============================================
 void eat_cl(){
-  char ln[100];
-  void * ln_state;
-  
-  if(sh_mode) { // from batch file
-    ln_state = (void *) fgets(ln, sizeof(ln), fptr); 
-  }
-  else {        // from shell
-    ln_state = (void *) fgets(ln, sizeof(ln), stdin); // read shell line 
-    if(ln_state) {                  // if not enter blank 
-      sscanf(cl , "%s" , cl);       // extracts the 1st word
-    }
-  }
+  char * cl = NULL;
+  size_t len = 0;
+  int ln_state = 0;
 
+          
+  if(!sh_mode) ln_state = getline( &cl , &len , stdin ); // read shell line   
+  else ln_state = getline( &cl , &len , fptr); // read batch line
   
-  
-  
-  if( strcmp(shln , "exit")==0 ){
+  if(ln_state == -1) {                  // cover interrupt/eof 
     req_exit = 1;
   }
-  //strcmp(cl,"exit");
+  else {
+    sscanf(cl , "%s" , cl);                   // extracts cmd 
+    digest_cmd(cl);
+  }
+
+  free(cl);
 }
 
+void digest_cmd(char * cmd){
+    /*
+  if( strcmp(cl , "exit")==0 ){
+    req_exit = 1;
+    }
+  */
+  //strcmp(cl,"exit");
+}

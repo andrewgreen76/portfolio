@@ -1,6 +1,12 @@
+
 ------------------------------------------------------------
  . Practice creating, destroying, and managing processes.
 
+------------------------------------------------------------
+"Your basic shell should be able to parse a command and execute it.
+
+    For example, if the user types ls -la /tmp, your shell should run the program /bin/ls with the given arguments -la and /tmp (how does the shell know to run /bin/ls? It’s the shell path; more on that later).
+"
 ============================================================
 ========================== PARENT ==========================
 ============================================================
