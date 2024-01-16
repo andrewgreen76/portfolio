@@ -1,22 +1,12 @@
-//#include "wish.h"
-#include <ctype.h>  // isspace
-#include <regex.h>  // regcomp, regexec, regfree
-#include <stdio.h>  // fopen, fclose, fileno, getline, feof
-#include <stdlib.h> // exit
-#include <sys/types.h>
-#include <sys/wait.h> // waitpid
-//
-#include <assert.h>  
-#include <string.h>  
+#include "wish.h"
 
 
-int sh_mode = 0; // 0 - interactive , 1 - batch
-int req_exit = 0;
+int sh_mode = INTERACTIVE_MODE; // 1 - interactive , 2 - batch
 FILE * fptr;
 void interact();
 void proc_batch(char *);
 void eat_cl();
-void digest_cmd(char * );
+void digest_cl(char * );
 
 
 int main(int argc, char *argv[]) {
@@ -24,17 +14,15 @@ int main(int argc, char *argv[]) {
   assert(argc<=2); // argv[1] = batch-file name
 
   if(argc==1){
-    sh_mode = 0;
+    sh_mode = INTERACTIVE_MODE;
     interact();
   }
   else{
-    sh_mode = 1;
+    sh_mode = BATCH_MODE;
     proc_batch(argv[1]);
   }
-
 /*
-........
-    fork/wait/exec(cmd) 
+    fork/wait/execv(cmd) 
 
 /////////// CHILD ///////////
  -> shell response	  
@@ -42,7 +30,6 @@ int main(int argc, char *argv[]) {
     -> child finishes
  -> parent resumes , prompts again 
 */
-  
   printf("\n");
   return 0;
 }
@@ -51,7 +38,7 @@ int main(int argc, char *argv[]) {
 // ============= INTERACTIVE MODE : ==============
 // ===============================================
 void interact(){
-  while(!req_exit){
+  while(1){
     printf("wish> ");
     eat_cl();
   }
@@ -63,12 +50,9 @@ void interact(){
 void proc_batch(char * fname){
   fptr = fopen(fname , "r");
   
-  if(fptr){
-    while(!req_exit) eat_cl();
+  if(fptr){             // if found, 
+    while(1) eat_cl();  // scan the batch 
     fclose(fptr);
-  }
-  else{
-    //... do nothing ... 
   }
 }
 
@@ -78,23 +62,28 @@ void eat_cl(){
   char * cl = NULL;
   size_t len = 0;
   int ln_state = 0;
-
           
-  if(!sh_mode) ln_state = getline( &cl , &len , stdin ); // read shell line   
-  else ln_state = getline( &cl , &len , fptr); // read batch line
+  if(sh_mode==1) ln_state = getline( &cl , &len , stdin ); // read shell line   
+  else ln_state = getline( &cl , &len , fptr);           // read batch line
   
-  if(ln_state == -1) {                  // cover interrupt/eof 
-    req_exit = 1;
+  if(ln_state == -1) { // exit prog if INT/EOF 
+    exit(0); 
   }
-  else {
-    sscanf(cl , "%s" , cl);                   // extracts cmd 
-    digest_cmd(cl);
+  else {              // in the middle of punching in commands 
+    digest_cl(cl);
   }
 
   free(cl);
 }
 
-void digest_cmd(char * cmd){
+void digest_cl(char * cl_rem){
+  char * token;
+  const char delim = " ";
+
+  while ( (token = strsep(&cl_rem, delim)) != NULL) {
+    //printf("Token: %s\n", token);
+  }
+  
     /*
   if( strcmp(cl , "exit")==0 ){
     req_exit = 1;

@@ -1,12 +1,23 @@
 
 ------------------------------------------------------------
- . Practice creating, destroying, and managing processes.
-
+To check if a file exists in a directory and is executable, consider using the access() system call.
+------------------------------------------------------------
+SHELL SEARCH PATH : 
+ . Need a path variable with all the paths to all the executables.
+ . to be called "path"
+ . when the user types in the command , the shell should search for the corresponding executable
+ . initial path=/bin
+------------------------------------------------------------
+ . use execv()
+ . do not use system() 
 ------------------------------------------------------------
 "Your basic shell should be able to parse a command and execute it.
 
     For example, if the user types ls -la /tmp, your shell should run the program /bin/ls with the given arguments -la and /tmp (how does the shell know to run /bin/ls? It’s the shell path; more on that later).
 "
+------------------------------------------------------------
+ . Practice creating, destroying, and managing processes.
+
 ============================================================
 ========================== PARENT ==========================
 ============================================================
