@@ -11,23 +11,29 @@
 
 int sh_mode = INTERACTIVE_MODE; // 1 - interactive , 2 - batch
 FILE * fptr;
+char cl[BUFF_SIZE];
 void interact();
-void proc_batch(char *);
-void eat_cl();
-void digest_cl(char * );
+void use_batch(char *);
+void proc_cl();
+void check_int_eof();
 
-
+// ===============================================================
+// =========================== MAIN : ============================
+// ===============================================================
 int main(int argc, char *argv[]) {
   printf("\n");
-  assert(argc<=2); // argv[1] = batch-file name
-
-  if(argc==1){
-    sh_mode = INTERACTIVE_MODE;
+  if(argc>2){ // argv[1] = batch-file name
+    printError();
+    exit(1);
+  }
+  // ============================================
+  sh_mode = argc;
+  
+  if(sh_mode == INTERACTIVE_MODE) {
     interact();
   }
   else{
-    sh_mode = BATCH_MODE;
-    proc_batch(argv[1]);
+    use_batch(argv[1]);
   }
 /*
     fork/wait/execv(cmd) 
@@ -48,54 +54,53 @@ int main(int argc, char *argv[]) {
 void interact(){
   while(1){
     printf("wish> ");
-    eat_cl();
+    proc_cl();
   }
 }
 
 // ===============================================
 // ================ BATCH MODE : =================
 // ===============================================
-void proc_batch(char * fname){
+void use_batch(char * fname){
   fptr = fopen(fname , "r");
   
-  if(fptr){             // if found, 
-    while(1) eat_cl();  // scan the batch 
+  if(fptr){       // if found, 
+    while(1)      //
+      proc_cl();  // scan the batch 
     fclose(fptr);
   }
 }
 
 
-// ===============================================
-void eat_cl(){
+// TOKENIZES a line , ACTS on it : 
+void proc_cl() {
+  check_int_eof();
+  parseInput(cl);  
+}
+
+
+void check_int_eof() {
   char * cl = NULL;
   size_t len = 0;
   int ln_state = 0;
-          
-  if(sh_mode==1) ln_state = getline( &cl , &len , stdin ); // read shell line   
-  else ln_state = getline( &cl , &len , fptr);           // read batch line
+
+  if(sh_mode == INTERACTIVE_MODE)
+    ln_state = getline( &cl , &len , stdin );  // read shell line   
+  else ln_state = getline( &cl , &len , fptr); // read batch line
   
-  if(ln_state == -1) { // exit prog if INT/EOF 
+  if(ln_state == -1) { // exit prog if INT/EOF // quit routine : 
+    if(sh_mode == BATCH_MODE) fclose(fptr);    // takes care of the file 
+    free(cl);                                  // takes care of the heap 
     exit(0); 
   }
-  else {              // in the middle of punching in commands 
-    digest_cl(cl);
-  }
-
-  free(cl);
 }
 
-void digest_cl(char * cl_rem){
+
+void parseInput(char * cl_rem){
   char * token;
   const char delim = " ";
 
   while ( (token = strsep(&cl_rem, delim)) != NULL) {
     //printf("Token: %s\n", token);
   }
-  
-    /*
-  if( strcmp(cl , "exit")==0 ){
-    req_exit = 1;
-    }
-  */
-  //strcmp(cl,"exit");
 }
