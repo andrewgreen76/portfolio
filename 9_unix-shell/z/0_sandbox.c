@@ -1,4 +1,7 @@
+#define  _GNU_SOURCE
+//#define  _POSIX_C_SOURCE 200809L
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 int main(){
@@ -6,10 +9,14 @@ int main(){
 
   char * line = NULL;
   size_t len = 0;
+  char a[] = "hello";
+  char * rest = a;
+  const char * delimiter = " ";
 
-  getine(&line , &len , stdin);
-  printf("text2 : %s\n" , text2);
+  getline(&line , &len , stdin);
   free(line);
+
+  strsep(&rest , delimiter);
   
   printf("\n");
 }

@@ -1,13 +1,13 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11 -pedantic
-LDFLAGS = 
+CFLAGS = -Wall -Wextra -std=c11
+LDFLAGS = -lpthread
 
-SRC = 0_sandbox.c
-HEADERS = 
+SRC = wish.c
+#DEPS = queue.c
+HEADERS = wish.h
 
-TARGET = prog
-
-#########################################
+# The target executable
+TARGET = wish
 
 all: $(TARGET)
 
