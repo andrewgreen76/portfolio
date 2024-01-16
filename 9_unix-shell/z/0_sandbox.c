@@ -3,12 +3,13 @@
 
 int main(){
   printf("\n");
-  
-  char text[] = "Hello";
-  char text2[100];
-  
-  strcpy( text , text2 );
+
+  char * line = NULL;
+  size_t len = 0;
+
+  getine(&line , &len , stdin);
   printf("text2 : %s\n" , text2);
+  free(line);
   
   printf("\n");
 }

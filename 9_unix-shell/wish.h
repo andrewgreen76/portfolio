@@ -14,7 +14,7 @@
 #define BATCH_MODE 2
 #define BUFF_SIZE 256
 
-
+// thread args 
 struct function_args {
   pthread_t thread;
   char *command;
@@ -31,6 +31,6 @@ void printError() {
 void *parseInput(void *arg);  // ------------------------------- basic shell
 int searchPath(char path[], char *firstArg); // ----------------- paths
 void redirect(FILE *out); // ------------------------------------redirection 
-void executeCommands(char *args[], int args_num, FILE *out); // parallel commands 
-char *trim(char *);
-void clean(void);
+void executeCommands(char *args[], int args_num, FILE *out); // thread / parallel commands 
+char *trim(char *); // ? trim the read line token by token ? 
+void clean(void);   // ? free the buffer and close the file before exit ? 

@@ -15,7 +15,7 @@ char cl[BUFF_SIZE];
 void interact();
 void use_batch(char *);
 void proc_cl();
-void check_int_eof();
+void catch_INT_EOF();
 
 // ===============================================================
 // =========================== MAIN : ============================
@@ -30,10 +30,7 @@ int main(int argc, char *argv[]) {
   sh_mode = argc;
   if(sh_mode == INTERACTIVE_MODE) interact();
   else use_batch(argv[1]);
-/*
-    fork/wait/execv(cmd) 
-
-/////////// CHILD ///////////
+/*   fork/wait/execv(cmd) 
  -> shell response	  
     -> execute the command 
     -> child finishes
@@ -66,15 +63,18 @@ void use_batch(char * fname){
   }
 }
 
-
-// TOKENIZES a line , ACTS on it : 
+// ====================================================
+// Process command : check for blanks, else pass thru :
+// ====================================================
 void proc_cl() {
-  check_int_eof();
+  catch_INT_EOF();
   parseInput(cl);  
 }
 
-
-void check_int_eof() {
+// =================================================
+// ========= Check to see if empty line : ==========
+// =================================================
+void catch_INT_EOF() {
   char * cl = NULL;
   size_t len = 0;
   int ln_state = 0;
@@ -90,12 +90,42 @@ void check_int_eof() {
   }
 }
 
-
-void parseInput(char * cl_rem){
+// =================================================
+// ======= TOKENIZES a line , ACTS on it :  ========
+// =================================================
+void * parseInput(char * cl_rem){
   char * token;
   const char delim = " ";
 
   while ( (token = strsep(&cl_rem, delim)) != NULL) {
     //printf("Token: %s\n", token);
   }
+
+  return NULL;
+}
+
+// =================================================
+// ===================== ??? : =====================
+// =================================================
+int searchPath(char path[], char *firstArg) {
+  return 0;
+}
+
+// =================================================
+// =============== > REDIRECTION : =================
+// =================================================
+void redirect(FILE *out) {
+}
+
+// =================================================
+// =============== THREADING HERE : =================
+// =================================================
+void executeCommands(char *args[], int args_num, FILE *out) {
+}
+
+char *trim(char *) {
+  return NULL;
+}
+
+void clean(void) {
 }
