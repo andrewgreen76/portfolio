@@ -1,3 +1,5 @@
+#define  _GNU_SOURCE
+//#define  _POSIX_C_SOURCE 200809L
 #include "wish.h"
 #include <ctype.h>  // isspace
 #include <regex.h>  // regcomp, regexec, regfree
