@@ -16,8 +16,12 @@ FILE * fptr;
 char cl[BUFF_SIZE];
 void interact();
 void use_batch(char *);
-void proc_cl();
-void catch_INT_EOF();
+void proc_ln();
+void check_INT_EOF(char *);
+void tokenize(char *);
+
+typedef struct{
+} clargs;
 
 // ===============================================================
 // =========================== MAIN : ============================
@@ -32,7 +36,7 @@ int main(int argc, char *argv[]) {
   sh_mode = argc;
   if(sh_mode == INTERACTIVE_MODE) interact();
   else use_batch(argv[1]);
-/*   fork/wait/execv(cmd) 
+/*   fork/wait/ EXECV(cmd) 
  -> shell response	  
     -> execute the command 
     -> child finishes
@@ -48,7 +52,7 @@ int main(int argc, char *argv[]) {
 void interact(){
   while(1){
     printf("wish> ");
-    proc_cl();
+    proc_ln();
   }
 }
 
@@ -60,7 +64,7 @@ void use_batch(char * fname){
   
   if(fptr){       // if found, 
     while(1)      //
-      proc_cl();  // scan the batch 
+      proc_ln();  // scan the batch 
     fclose(fptr);
   }
 }
@@ -68,36 +72,42 @@ void use_batch(char * fname){
 // ====================================================
 // Process command : check for blanks, else pass thru :
 // ====================================================
-void proc_cl() {
-  catch_INT_EOF();
-  parseInput(cl);  
+void proc_ln() {
+  char * ln = NULL;
+  char *args[];
+  
+  catch_INT_EOF(ln);
+  tokenize(ln);
+  executeCommands(char *args[], int args_num, FILE *out); //  
+  free(ln);
 }
 
 // =================================================
 // ========= Check to see if empty line : ==========
 // =================================================
-void catch_INT_EOF() {
-  char * cl = NULL;
+void check_INT_EOF(char * cl) {
   size_t len = 0;
-  int ln_state = 0;
+  int cl_state = 0;
 
   if(sh_mode == INTERACTIVE_MODE)
-    ln_state = getline( &cl , &len , stdin );  // read shell line   
-  else ln_state = getline( &cl , &len , fptr); // read batch line
+    cl_state = getline( &cl , &len , stdin );  // read shell line   
+  else cl_state = getline( &cl , &len , fptr); // read batch line
   
-  if(ln_state == -1) { // exit prog if INT/EOF // quit routine : 
+  if(cl_state == -1) { // exit prog if INT/EOF // quit routine : 
     if(sh_mode == BATCH_MODE) fclose(fptr);    // takes care of the file 
     free(cl);                                  // takes care of the heap 
     exit(0); 
   }
 }
 
+
 // =================================================
 // ======= TOKENIZES a line , ACTS on it :  ========
 // =================================================
-void * parseInput(char * cl_rem){
-  char * token;
+void tokenize(char * cl_rem){  
+  char * token; 
   const char delim = " ";
+  int built_in = 0;
 
   while ( (token = strsep(&cl_rem, delim)) != NULL) {
     //printf("Token: %s\n", token);
@@ -120,14 +130,15 @@ void redirect(FILE *out) {
 }
 
 // =================================================
-// =============== THREADING HERE : =================
+// =========== Launch processes here : =============
 // =================================================
 void executeCommands(char *args[], int args_num, FILE *out) {
 }
 
-char *trim(char *) {
-  return NULL;
-}
 
-void clean(void) {
-}
+
+////////////////////////////////////////////////////
+char *trim(char *) {return NULL;}
+void clean(void) {}
+// == (requires multi-threading - not in instr) : ==
+void * parseInput(void * arg) {return NULL;}
