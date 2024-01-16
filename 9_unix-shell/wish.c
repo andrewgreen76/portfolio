@@ -22,11 +22,11 @@ void check_int_eof();
 // ===============================================================
 int main(int argc, char *argv[]) {
   printf("\n");
-  if(argc>2){ // argv[1] = batch-file name
+  if(argc>2){ 
     printError();
     exit(1);
   }
-  // ================= Enter a mode : ===================
+  // ============== Enter a mode , engage : ===============
   sh_mode = argc;
   if(sh_mode == INTERACTIVE_MODE) interact();
   else use_batch(argv[1]);
