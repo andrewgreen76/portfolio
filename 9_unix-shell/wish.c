@@ -15,8 +15,7 @@ int req_exit = 0;
 FILE * fptr;
 void interact();
 void proc_batch(char *);
-int eat_shln();
-void * eat_batln();
+void eat_cl();
 
 
 int main(int argc, char *argv[]) {
@@ -53,22 +52,10 @@ int main(int argc, char *argv[]) {
 void interact(){
   while(!req_exit){
     printf("wish> ");
-    eat_shln();
+    eat_cl();
   }
 }
 
-// ===============================================
-void eat_shln(){
-  char shln[100];
-  void * shln_state;
-  
-  shln_state = (void *) fgets(shln, sizeof(shln), stdin); // captures cmdln from shell 
-  if(shln_state) sscanf(shln , "%s" , shln);       // extracts the 1st word  
-  
-  if( strcmp(shln , "exit")==0 ){
-    req_exit = 1;
-  }
-}
 // ===============================================
 // ================ BATCH MODE : =================
 // ===============================================
@@ -76,7 +63,7 @@ void proc_batch(char * fname){
   fptr = fopen(fname , "r");
   
   if(fptr){
-    while( eat_batln(fptr) != NULL );
+    while(!req_exit) eat_cl();
     fclose(fptr);
   }
   else{
@@ -84,14 +71,28 @@ void proc_batch(char * fname){
   }
 }
 
+
 // ===============================================
-void * eat_batln(){
-  char batln[100];
-  void * batln_state;
+void eat_cl(){
+  char ln[100];
+  void * ln_state;
   
-  batln_state = fgets(cl, sizeof(cl), fptr); // captures cmdln from shell
-  if(batln_state) sscanf(cl , "%s" , cl);       // extracts the 1st word
-    
+  if(sh_mode) { // from batch file
+    ln_state = (void *) fgets(ln, sizeof(ln), fptr); 
+  }
+  else {        // from shell
+    ln_state = (void *) fgets(ln, sizeof(ln), stdin); // read shell line 
+    if(ln_state) {                  // if not enter blank 
+      sscanf(cl , "%s" , cl);       // extracts the 1st word
+    }
+  }
+
+  
+  
+  
+  if( strcmp(shln , "exit")==0 ){
+    req_exit = 1;
+  }
   //strcmp(cl,"exit");
-  return batln_state;
 }
+
