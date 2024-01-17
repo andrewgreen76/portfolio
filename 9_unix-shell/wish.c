@@ -49,16 +49,19 @@ int main(int argc, char *argv[]) {
 // ============= INTERACTIVE MODE : ==============
 // ===============================================
 void interact(){
+  /*
   while(1){
     printf("wish> ");
     proc_ln();
   }
+  */
 }
 
 // ===============================================
 // ================ BATCH MODE : =================
 // ===============================================
 void use_batch(char * fname){
+  /*
   fptr = fopen(fname , "r");
   
   if(fptr){       // if found, 
@@ -66,6 +69,7 @@ void use_batch(char * fname){
       proc_ln();  // scan the batch 
     fclose(fptr);
   }
+  */
 }
 
 // ====================================================
@@ -76,7 +80,7 @@ void proc_ln() {
   char *cmds[BUFF_SIZE]; // 256 ptrs 
   int cmds_num = 0;
   
-  catch_INT_EOF(ln);                // check if end 
+  check_INT_EOF(ln);                // check if end 
   if( strcmp(ln,"") ) {             // check if blank line
     get_cmds(cmds , &cmds_num , ln); // break up into commands : return addresses of cmds , num of cmds
     executeCommands(cmds , cmds_num , fptr); // per CMDLN or CMD ??
@@ -97,7 +101,7 @@ void executeCommands(char *args[], int args_num, FILE *out) {
 
   for(int c=0 ; c<args_num ; c++) {
     // LOOP TO FORK COMMAND , THEN WAIT.
-    wait();
+    //wait();
   }
 }
 

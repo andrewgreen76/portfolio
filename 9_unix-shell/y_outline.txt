@@ -1,6 +1,6 @@
 
 ------------------------------------------------------------
-Catch all errors outlines in the instructions. 
+Catch all errors - outlines in the instructions. 
 ------------------------------------------------------------
 Available syscalls :
  . access()
@@ -14,8 +14,7 @@ Built-in command :
 To check if a file exists in a directory and is executable, consider using the access() system call.
 ------------------------------------------------------------
 SHELL SEARCH PATH : 
- . Need a path variable with all the paths to all the executables.
- . to be called "path"
+ . Need a "path" variable with all the paths to all the executables.
  . when the user types in the command , the shell should search for the corresponding executable
  . initial path=/bin
 ------------------------------------------------------------
