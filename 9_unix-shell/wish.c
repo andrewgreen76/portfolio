@@ -17,7 +17,7 @@ char cl[BUFF_SIZE];
 void interact();
 void use_batch(char *);
 void proc_ln();
-int check_end(char *);
+int check_end(char **);
 void get_cmds(char * [] , int * , char *);
 
 /*  
@@ -73,42 +73,22 @@ void use_batch(char * fname){
 // ====================================================
 void proc_ln() {
   char * ln = NULL;
-  char *cmds[BUFF_SIZE]; // 256 ptrs 
+  char *cmds[BUFF_SIZE]; // 256 ptrs
   int cmds_num = 0;
 
   // EXIT ROUTINE : 
-  if( check_end(ln) == -1) {   
+  if( check_end(&ln) == -1) {   
     if(sh_mode == BATCH_MODE) fclose(bat_ptr);    // takes care of the file 
     free(ln);                                     // takes care of the heap 
     exit(0); 
   }
-
   
-  printf(": %s\n" , ln);
-
-  /*
-  if( strcmp(ln,"")!=0 ) {   // do nothing at blank lines
-    printf(": %s\n" , ln);
-    //get_cmds(cmds , &cmds_num , ln); // break up into commands : return addresses of cmds , num of cmds
+  if( strcmp(ln,"\n")!=0 ) {   // do nothing at newline 
+    get_cmds(cmds , &cmds_num , ln); // break up into commands : return addresses of cmds , num of cmds
     //executeCommands(cmds , cmds_num , bat_ptr); // per CMDLN or CMD ??
   }
-  */
   
   free(ln);
-}
-
-// =================================================
-// ====== Check to see if end of requests :  =======
-// =================================================
-int check_end(char * cl) {
-  size_t len = 0;
-  int cl_state = 0;
-  
-  if(sh_mode == INTERACTIVE_MODE)  // ----------- READ LINE 
-    cl_state = getline( &cl , &len , stdin );  // read shell line   
-  else cl_state = getline( &cl , &len , bat_ptr); // read batch line
-  
-  return cl_state;
 }
 
 // =================================================
@@ -122,6 +102,20 @@ void get_cmds(char * cmds[] , int * cmds_num, char * cl_rem){
     *cmds_num++; 
   }
   */
+}
+
+// =================================================
+// ====== Check to see if end of requests :  =======
+// =================================================
+int check_end(char ** cl) {
+  size_t len = 0;
+  int cl_state = 0;
+  
+  if(sh_mode == INTERACTIVE_MODE)  // ----------- READ LINE 
+    cl_state = getline( cl , &len , stdin );  // load shell line , ret num_chars 
+  else cl_state = getline( cl , &len , bat_ptr); // load batch line , ret num_chars
+  
+  return cl_state;
 }
 
 // =================================================

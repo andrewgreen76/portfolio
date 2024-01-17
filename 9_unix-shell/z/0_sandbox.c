@@ -12,6 +12,8 @@ int main(int argc , char *argv[]){
     printf(": %s" , line);
   }
   free(line);
+}
+
 
 /*
   char * line = NULL;
@@ -25,4 +27,3 @@ int main(int argc , char *argv[]){
 
   strsep(&rest , delimiter);
 */
-}
