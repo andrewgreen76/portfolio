@@ -10,7 +10,7 @@
 #include <string.h> 
 #include <assert.h> 
 
-
+// SHELL GETS LAUNCHED ONCE , IN ONE MODE. 
 int sh_mode = INTERACTIVE_MODE; // 1 - interactive , 2 - batch
 FILE * fptr;
 char cl[BUFF_SIZE];
@@ -18,10 +18,13 @@ void interact();
 void use_batch(char *);
 void proc_ln();
 void check_INT_EOF(char *);
-void tokenize(char *);
+void get_cmds(char * [] , int * , char *);
 
+/*
 typedef struct{
-} clargs;
+  void * next;
+} list;
+*/
 
 // ===============================================================
 // =========================== MAIN : ============================
@@ -36,11 +39,10 @@ int main(int argc, char *argv[]) {
   sh_mode = argc;
   if(sh_mode == INTERACTIVE_MODE) interact();
   else use_batch(argv[1]);
-/*   fork/wait/ EXECV(cmd) 
- -> shell response	  
-    -> execute the command 
-    -> child finishes
- -> parent resumes , prompts again 
+/*  fork/wait/ EXECV(cmd) 
+       -> execute the command 
+       -> child finishes
+    -> parent resumes , prompts again 
 */
   printf("\n");
   return 0;
@@ -74,13 +76,40 @@ void use_batch(char * fname){
 // ====================================================
 void proc_ln() {
   char * ln = NULL;
-  char *args[];
+  char *cmds[BUFF_SIZE]; // 256 ptrs 
+  int cmds_num = 0;
   
-  catch_INT_EOF(ln);
-  tokenize(ln);
-  executeCommands(char *args[], int args_num, FILE *out); //  
+  catch_INT_EOF(ln);                // check if end 
+  if( strcmp(ln,"") ) {             // check if blank line
+    get_cmds(cmds , &cmds_num , ln); // break up into commands : return addresses of cmds , num of cmds
+    executeCommands(cmds , cmds_num , fptr); // per CMDLN or CMD ??
+  }
   free(ln);
 }
+
+// =================================================
+// =========== Launch processes here : =============
+// =================================================
+void executeCommands(char *args[], int args_num, FILE *out) {
+  pid_t children[];
+  
+  for(int c=0 ; c<args_num ; c++) {
+    // LOOP TO FORK COMMAND , THEN WAIT.
+    
+  }
+}
+
+// =================================================
+// ===== Breaks the line up into indiv. cmds : =====
+// =================================================
+void get_cmds(char * cmds[] , int * cmds_num, char * cl_rem){  
+  const char delim = "&";
+  
+  while ( (cmds[cmds_num] = strsep(&cl_rem, delim)) != NULL ) {
+    cmds_num++; 
+  }
+}
+
 
 // =================================================
 // ========= Check to see if empty line : ==========
@@ -100,22 +129,6 @@ void check_INT_EOF(char * cl) {
   }
 }
 
-
-// =================================================
-// ======= TOKENIZES a line , ACTS on it :  ========
-// =================================================
-void tokenize(char * cl_rem){  
-  char * token; 
-  const char delim = " ";
-  int built_in = 0;
-
-  while ( (token = strsep(&cl_rem, delim)) != NULL) {
-    //printf("Token: %s\n", token);
-  }
-
-  return NULL;
-}
-
 // =================================================
 // ===================== ??? : =====================
 // =================================================
@@ -127,12 +140,6 @@ int searchPath(char path[], char *firstArg) {
 // =============== > REDIRECTION : =================
 // =================================================
 void redirect(FILE *out) {
-}
-
-// =================================================
-// =========== Launch processes here : =============
-// =================================================
-void executeCommands(char *args[], int args_num, FILE *out) {
 }
 
 
