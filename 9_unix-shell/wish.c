@@ -49,27 +49,24 @@ int main(int argc, char *argv[]) {
 // ============= INTERACTIVE MODE : ==============
 // ===============================================
 void interact(){
-  /*
   while(1){
     printf("wish> ");
     proc_ln();
   }
-  */
 }
 
 // ===============================================
 // ================ BATCH MODE : =================
 // ===============================================
 void use_batch(char * fname){
-  /*
   fptr = fopen(fname , "r");
   
   if(fptr){       // if found, 
-    while(1)      //
-      proc_ln();  // scan the batch 
+    while(1) {    //
+      proc_ln();  // scan the batch
+    }
     fclose(fptr);
   }
-  */
 }
 
 // ====================================================
@@ -82,10 +79,28 @@ void proc_ln() {
   
   check_INT_EOF(ln);                // check if end 
   if( strcmp(ln,"") ) {             // check if blank line
-    get_cmds(cmds , &cmds_num , ln); // break up into commands : return addresses of cmds , num of cmds
-    executeCommands(cmds , cmds_num , fptr); // per CMDLN or CMD ??
+    //get_cmds(cmds , &cmds_num , ln); // break up into commands : return addresses of cmds , num of cmds
+    //executeCommands(cmds , cmds_num , fptr); // per CMDLN or CMD ??
   }
   free(ln);
+}
+
+// =================================================
+// ====== Check to see if end of requests :  =======
+// =================================================
+void check_INT_EOF(char * cl) {
+  size_t len = 0;
+  int cl_state = 0;
+
+  if(sh_mode == INTERACTIVE_MODE)
+    cl_state = getline( &cl , &len , stdin );  // read shell line   
+  else cl_state = getline( &cl , &len , fptr); // read batch line
+  
+  if(cl_state == -1) { // exit prog if INT/EOF // quit routine : 
+    if(sh_mode == BATCH_MODE) fclose(fptr);    // takes care of the file 
+    free(cl);                                  // takes care of the heap 
+    exit(0); 
+  }
 }
 
 // =================================================
@@ -109,29 +124,10 @@ void executeCommands(char *args[], int args_num, FILE *out) {
 // ===== Breaks the line up into indiv. cmds : =====
 // =================================================
 void get_cmds(char * cmds[] , int * cmds_num, char * cl_rem){  
-  const char delim = "&";
+  const char * delim = "&";
   
-  while ( (cmds[cmds_num] = strsep(&cl_rem, delim)) != NULL ) {
-    cmds_num++; 
-  }
-}
-
-
-// =================================================
-// ========= Check to see if empty line : ==========
-// =================================================
-void check_INT_EOF(char * cl) {
-  size_t len = 0;
-  int cl_state = 0;
-
-  if(sh_mode == INTERACTIVE_MODE)
-    cl_state = getline( &cl , &len , stdin );  // read shell line   
-  else cl_state = getline( &cl , &len , fptr); // read batch line
-  
-  if(cl_state == -1) { // exit prog if INT/EOF // quit routine : 
-    if(sh_mode == BATCH_MODE) fclose(fptr);    // takes care of the file 
-    free(cl);                                  // takes care of the heap 
-    exit(0); 
+  while ( (cmds[*cmds_num] = strsep(&cl_rem, delim)) != NULL ) {
+    *cmds_num++; 
   }
 }
 
@@ -151,7 +147,7 @@ void redirect(FILE *out) {
 
 
 ////////////////////////////////////////////////////
-char *trim(char *) {return NULL;}
+char *trim(char * a) {return a;}
 void clean(void) {}
 // == (requires multi-threading - not in instr) : ==
 void * parseInput(void * arg) {return NULL;}
