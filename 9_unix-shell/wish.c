@@ -20,10 +20,11 @@ void proc_ln();
 void check_INT_EOF(char *);
 void get_cmds(char * [] , int * , char *);
 
-/*
-typedef struct{
-  void * next;
-} list;
+/*  
+    fork/wait/ EXECV(cmd) 
+       -> execute the command 
+       -> child finishes
+    -> parent resumes , prompts again 
 */
 
 // ===============================================================
@@ -39,11 +40,7 @@ int main(int argc, char *argv[]) {
   sh_mode = argc;
   if(sh_mode == INTERACTIVE_MODE) interact();
   else use_batch(argv[1]);
-/*  fork/wait/ EXECV(cmd) 
-       -> execute the command 
-       -> child finishes
-    -> parent resumes , prompts again 
-*/
+  /////////////////////////////////////////////////////////
   printf("\n");
   return 0;
 }
@@ -91,11 +88,16 @@ void proc_ln() {
 // =========== Launch processes here : =============
 // =================================================
 void executeCommands(char *args[], int args_num, FILE *out) {
-  pid_t children[];
+  pid_t children[BUFF_SIZE];
   
   for(int c=0 ; c<args_num ; c++) {
     // LOOP TO FORK COMMAND , THEN WAIT.
-    
+    children[c] = fork();
+  }
+
+  for(int c=0 ; c<args_num ; c++) {
+    // LOOP TO FORK COMMAND , THEN WAIT.
+    wait();
   }
 }
 
