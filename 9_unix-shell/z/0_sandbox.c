@@ -5,10 +5,14 @@
 #include <string.h>
 
 int main(int argc , char *argv[]){
-  printf("\n");
+  char * line = NULL;
+  size_t len = 0;
 
-  printf("argc : %d\n" , argc);
-  
+  while(getline(&line , &len , stdin) != -1) {
+    printf(": %s" , line);
+  }
+  free(line);
+
 /*
   char * line = NULL;
   size_t len = 0;
@@ -21,5 +25,4 @@ int main(int argc , char *argv[]){
 
   strsep(&rest , delimiter);
 */
-  printf("\n");
 }
