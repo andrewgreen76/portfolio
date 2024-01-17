@@ -31,7 +31,6 @@ void get_cmds(char * [] , int * , char *);
 // =========================== MAIN : ============================
 // ===============================================================
 int main(int argc, char *argv[]) {
-  printf("\n");
   if(argc>2){ 
     printError();
     exit(1);
@@ -79,10 +78,21 @@ void proc_ln() {
   
   check_INT_EOF(ln);                // check if end 
   if( strcmp(ln,"") ) {             // check if blank line
-    //get_cmds(cmds , &cmds_num , ln); // break up into commands : return addresses of cmds , num of cmds
+    get_cmds(cmds , &cmds_num , ln); // break up into commands : return addresses of cmds , num of cmds
     //executeCommands(cmds , cmds_num , fptr); // per CMDLN or CMD ??
   }
   free(ln);
+}
+
+// =================================================
+// ===== Breaks the line up into indiv. cmds : =====
+// =================================================
+void get_cmds(char * cmds[] , int * cmds_num, char * cl_rem){  
+  const char * delim = "&";
+  
+  while ( (cmds[*cmds_num] = strsep(&cl_rem, delim)) != NULL ) {
+    *cmds_num++; 
+  }
 }
 
 // =================================================
@@ -91,7 +101,7 @@ void proc_ln() {
 void check_INT_EOF(char * cl) {
   size_t len = 0;
   int cl_state = 0;
-
+  
   if(sh_mode == INTERACTIVE_MODE)
     cl_state = getline( &cl , &len , stdin );  // read shell line   
   else cl_state = getline( &cl , &len , fptr); // read batch line
@@ -117,17 +127,6 @@ void executeCommands(char *args[], int args_num, FILE *out) {
   for(int c=0 ; c<args_num ; c++) {
     // LOOP TO FORK COMMAND , THEN WAIT.
     //wait();
-  }
-}
-
-// =================================================
-// ===== Breaks the line up into indiv. cmds : =====
-// =================================================
-void get_cmds(char * cmds[] , int * cmds_num, char * cl_rem){  
-  const char * delim = "&";
-  
-  while ( (cmds[*cmds_num] = strsep(&cl_rem, delim)) != NULL ) {
-    *cmds_num++; 
   }
 }
 
