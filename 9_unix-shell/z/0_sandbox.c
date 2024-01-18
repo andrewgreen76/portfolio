@@ -1,29 +1,32 @@
-#define  _GNU_SOURCE
-//#define  _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
-int main(int argc , char *argv[]){
-  char * line = NULL;
-  size_t len = 0;
+int main(int argc , char *argv[]) {
+  printf("argc : %d\n" , argc);
+  
+  /*
+  char * args[] = {"/bin/ls",  NULL};
+  int status;
+  pid_t x = fork();
 
-  while(getline(&line , &len , stdin) != -1) {
-    printf(": %s" , line);
+  if(x==0){
+    printf("Child\n");
+    execv("/bin/ls", args);
+    //printf("Child finished\n");
+    //exit(0);
   }
-  free(line);
+  if(x==-1){
+    printf("Fail\n");    
+  }
+  else{
+    printf("Parent\n");
+    wait(&status);
+    printf("Parent woke up\n");
+  }
+  
+  printf("Finish line\n");    
+  */  
+  return 0;
 }
-
-
-/*
-  char * line = NULL;
-  size_t len = 0;
-  char a[] = "hello";
-  char * rest = a;
-  const char * delimiter = " ";
-
-  getline(&line , &len , stdin);
-  free(line);
-
-  strsep(&rest , delimiter);
-*/
