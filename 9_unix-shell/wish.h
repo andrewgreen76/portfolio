@@ -14,7 +14,7 @@
 #define BATCH_MODE 2
 #define BUFF_SIZE 256
 
-// NOT IN THE INSTRUCTIONS : thread args 
+// thread args - NOT IN INSTRUCTIONS ; in instrxns : use execv(path,args) instead. 
 struct function_args {
   pthread_t thread;
   char *command;
@@ -29,11 +29,10 @@ void printError() {
 }
 
 void executeCommands(char* args[], int args_num, FILE *out); // parallel commands 
+char *trim(char *); // --------- trim the read line token by token 
+void clean(void);   // ? free the buffer and close the file before exit ?
 int searchPath(char path[], char *firstArg); // ----------------- paths
 void redirect(FILE *out); // ------------------------------------ > redirection 
 
-
-//////////////////////////////////////////////////////////////////////////////////////
-void *parseInput(void *arg);  // ------------------------------- thread / basic shell
-char *trim(char *); // ? trim the read line token by token ? 
-void clean(void);   // ? free the buffer and close the file before exit ? 
+// ############ Per project : PROCESSES , NOT THREADS ############
+void *parseInput(void *arg); 

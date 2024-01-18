@@ -67,7 +67,7 @@ void proc_ln() {
   char * ln = NULL;
 
   // END OF COMMANDS (terminal code path) : 
-  if( check_end(&ln) == -1) {   
+  if( check_end(&ln) == -1) { 
     if(sh_mode == BATCH_MODE) fclose(bat_ptr);    // takes care of the file 
     free(ln);                                     // takes care of the heap 
     exit(0); 
@@ -112,7 +112,7 @@ void proc_cmdln(char * cl_rem){
 } 
 
 // =================================================
-// ============= Running child proc : ==============
+// =============== Split and run :  ================
 // =================================================
 void test_cmd(char * cmd) {
   char * args[BUFF_SIZE];
