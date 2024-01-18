@@ -28,11 +28,12 @@ void printError() {
   write(STDERR_FILENO, error_message, strlen(error_message));
 }
 
-void executeCommands(char* args[], int args_num, FILE *out); // parallel commands 
 char *trim(char *); // --------- trim the read line token by token 
+void executeCommands(char* args[], int args_num, FILE *out); // parallel commands 
 void clean(void);   // ? free the buffer and close the file before exit ?
-int searchPath(char path[], char *firstArg); // ----------------- paths
-void redirect(FILE *out); // ------------------------------------ > redirection 
+
+int searchPath(char path[], char *firstArg); // paths
+void redirect(FILE *out); // ------------------ > redirection 
 
 // ############ Per project : PROCESSES , NOT THREADS ############
 void *parseInput(void *arg); 

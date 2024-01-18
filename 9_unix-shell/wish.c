@@ -12,13 +12,18 @@
 
 // SHELL GETS LAUNCHED ONCE , IN ONE MODE. 
 int sh_mode = INTERACTIVE_MODE; // 1 - interactive , 2 - batch
+// global for the clean-up function in the header : 
 FILE * bat_ptr;
-char cl[BUFF_SIZE];
+char * ln = NULL;
+char path[BUFF_SIZE] = "/bin";
+int expose = 1;
+
+// function definitions : 
 void interact();
 void use_batch(char *);
 void proc_ln();
-int check_end(char **);
-void proc_cmdln(char *);
+int check_end();
+void proc_cl();
 void test_cmd(char *);
 int eval_cmd(char *);
 
@@ -56,7 +61,6 @@ void use_batch(char * fname){
     while(1) {    
       proc_ln();  // scan the batch
     }
-    //fclose(bat_ptr); // FILE CLOSES in a different block @ EOC -> exit(0). 
   }
 }
 
@@ -64,18 +68,16 @@ void use_batch(char * fname){
 // Process command : check for INT/EOF/blanks, else pass thru :
 // =============================================================
 void proc_ln() {
-  char * ln = NULL;
 
   // END OF COMMANDS (terminal code path) : 
-  if( check_end(&ln) == -1) { 
-    if(sh_mode == BATCH_MODE) fclose(bat_ptr);    // takes care of the file 
-    free(ln);                                     // takes care of the heap 
+  if( check_end() == -1) {
+    clean();
     exit(0); 
   }
 
   // ignore blank lines 
   if( strcmp(ln,"\n")!=0 ) {
-    proc_cmdln(ln); 
+    proc_cl(); 
   }
   
   free(ln);
@@ -84,20 +86,23 @@ void proc_ln() {
 // =================================================
 // ===== Breaks the line up into indiv. cmds : =====
 // =================================================
-void proc_cmdln(char * cl_rem){ 
+void proc_cl() {
+  //  char * new_cl = NULL;
   const char * delim_amp = "&";   // split into commands 
   const char * delim_space = " "; // strip off leading whitespace 
   char * cmd = NULL;              
   pid_t cid;
 
-  trim(cl_rem);
+  if(expose) printf("Processing command line (composite)\n");
+  ln = trim(ln);
+  if(expose) printf("LINE : \"%s\" \n" , ln);
   
   // EXTRACT AND RUN COMMANDS NOW TO NOT WASTE CPU TIME : 
-  while ( (cmd = strsep(&cl_rem, delim_amp)) != NULL ) {   // removes term'ing whspc , appends "\n" , rets cmd_addr    
+  while ( (cmd = strsep(&ln, delim_amp)) != NULL ) {   // removes term'ing whspc , appends "\n" , rets cmd_addr    
     cid = fork(); 
     if(cid==0) test_cmd(cmd); // TERMINAL CHILD
     else if(cid==-1) exit(0); // TERMINAL FAIL
-    strsep(&cl_rem, delim_space); // after "&" eat " " (to help with next cmd)    
+    strsep(&ln, delim_space); // after "&" eat " " (to help with next cmd)    
   }
   
   // WAIT FOR ALL CHILDREN TO TERMINATE :
@@ -121,14 +126,15 @@ void test_cmd(char * cmd) {
   int args_num = 0;
   FILE * out = NULL;
   
-  trim(cmd);
+  cmd = trim(cmd);
+  if(expose) printf("CMD : \"%s\" \n" , cmd);
 
   while ( (str = strsep(&cmd, delim)) != NULL ) {
     // checking on REDIRECTION , seeking OUTLOG : 
     if(    strcmp(str,">")==0    &&    (str = strsep(&cmd, delim)) != NULL    &&    (out = fopen(str,"w"))!=NULL ) {break;}
     // LOAD *args[] , COUNT args_num         
     args[args_num] = str;
-    printf("args[%d] : \"%s\" \n" , args_num , args[args_num]);
+    if(expose) printf("args[%d] : \"%s\" \n" , args_num , args[args_num]);
     args_num++;
   }
 
@@ -163,13 +169,13 @@ int eval_cmd(char * cmd) {
 // =================================================
 // ====== Check to see if end of requests :  =======
 // =================================================
-int check_end(char ** cl) {
+int check_end() {
   size_t len = 0;
   int cl_state = 0;
   
   if(sh_mode == INTERACTIVE_MODE)  // ----------- READ LINE 
-    cl_state = getline( cl , &len , stdin );     // load shell line ; ret 1 for blank , -1 for eof  
-  else cl_state = getline( cl , &len , bat_ptr); // load batch line ; ret 1 for blank , -1 for eof 
+    cl_state = getline( &ln , &len , stdin );     // load shell line ; ret 1 for blank , -1 for eof  
+  else cl_state = getline( &ln , &len , bat_ptr); // load batch line ; ret 1 for blank , -1 for eof 
   
   return cl_state;
 }
@@ -188,20 +194,67 @@ void redirect(FILE *out) {
 }
 
 // =================================================
-// ============== Trimming strings :  ==============
+// ============== Cmd_str doctoring : ==============
 // =================================================
-char *trim(char * str) {
-  int end = strlen(str)-1; // [0:c 1:a 2:t 3:\n]=4 ; 
-  
-  while(str[end]==' ' || str[end]=='\n' || str[end]=='\t') {
-    str[end]='\0';
-    end--;
+char *trim(char * iostr) {
+  char * substr = NULL; 
+  char outstr[BUFF_SIZE] = "";
+  const char * delim = " ";
+
+  if(expose) {
+    printf("Trimming input string : ");
+    printf("\"%s\"" , iostr);
   }
   
-  return str;
+  while( (substr = strsep(&iostr, delim)) != NULL ) {
+    if(expose) {
+      printf("Processing sub-string : ");
+      printf("\"%s\"\n" , substr);
+    }
+    if( strcmp(substr," ")!=0 && strcmp(substr,"\n")!=0 && strcmp(substr,"\t")!=0) {
+      if(expose) {
+	printf("APPROVED STRING\n");
+      }
+      if(expose) printf("Last char : %d\n" , substr[strlen(substr)-1] );
+      if( substr[strlen(substr)-1]=='\n' ) substr[strlen(substr)-1] = '\0';
+      if(expose) printf("NOW : %d\n" , substr[strlen(substr)-1] );
+      strcat(outstr , substr);
+      strcat(outstr , " ");
+    }
+  }
+  
+  if(expose) {
+    printf("outstr : ");
+    printf("\"%s\"" , outstr);
+  }
+
+  //outstr[strlen(outstr)-1] = '\0';
+  strcpy(iostr , outstr);
+  if(expose) {
+    printf("DOCTORED : ");
+    printf("\"%s\"\n" , iostr);
+  }
+  
+  //int end = strlen(in_str)-1; // [0:c 1:a 2:t 3:\n]=4 ; 
+
+  /*
+  while(in_str[end]==' ' || in_str[end]=='\n' || in_str[end]=='\t') {
+    in_str[end]='\0';
+    end--;
+  }
+  */
+  
+  return iostr;
 }
 
+// =================================================
+// ======== Close and release everything : =========
+// =================================================
+void clean(void) {
+  if(sh_mode == BATCH_MODE) fclose(bat_ptr);    // takes care of the file 
+  free(ln);                                     // takes care of the heap   
+}
 ////////////////////////////////////////////////////
-void clean(void) {}
+////////////////////////////////////////////////////
 // == (requires multi-threading - not in instr) : ==
 void * parseInput(void * arg) {return NULL;}
