@@ -93,9 +93,8 @@ void proc_cl() {
   char * cmd = NULL;              
   pid_t cid;
 
-  if(expose) printf("Processing command line (composite)\n");
   ln = trim(ln);
-  if(expose) printf("LINE : \"%s\" \n" , ln);
+  if(expose) printf("ERODED cl : \"%s\" \n" , ln);
   
   // EXTRACT AND RUN COMMANDS NOW TO NOT WASTE CPU TIME : 
   while ( (cmd = strsep(&ln, delim_amp)) != NULL ) {   // removes term'ing whspc , appends "\n" , rets cmd_addr    
@@ -127,7 +126,7 @@ void test_cmd(char * cmd) {
   FILE * out = NULL;
   
   cmd = trim(cmd);
-  if(expose) printf("CMD : \"%s\" \n" , cmd);
+  if(expose) printf("INDIV. CMD STREAM : \"%s\" \n" , cmd);
 
   while ( (str = strsep(&cmd, delim)) != NULL ) {
     // checking on REDIRECTION , seeking OUTLOG : 
@@ -197,53 +196,67 @@ void redirect(FILE *out) {
 // ============== Cmd_str doctoring : ==============
 // =================================================
 char *trim(char * iostr) {
-  char * substr = NULL; 
-  char outstr[BUFF_SIZE] = "";
-  const char * delim = " ";
+  int walked_alphanum = 0 , walked_wsp = 0 , walked_first_word = 0;
+  int left = 0 , right = 0;
 
-  if(expose) {
-    printf("Trimming input string : ");
-    printf("\"%s\"" , iostr);
-  }
-  
-  while( (substr = strsep(&iostr, delim)) != NULL ) {
-    if(expose) {
-      printf("Processing sub-string : ");
-      printf("\"%s\"\n" , substr);
-    }
-    if( strcmp(substr," ")!=0 && strcmp(substr,"\n")!=0 && strcmp(substr,"\t")!=0) {
-      if(expose) {
-	printf("APPROVED STRING\n");
+  while( iostr[right] != '\0' ){
+
+    // ALPHANUM 
+    if( iostr[right]!= ' ' && iostr[right]!= '\t' && iostr[right]!= '\n' ){
+      if(!walked_alphanum && !walked_wsp){ // occurs once : very 1st char = alphanum ; first word
+	left++;
+	walked_alphanum = 1;
+	walked_wsp = 0;
+	walked_first_word = 1;
       }
-      if(expose) printf("Last char : %d\n" , substr[strlen(substr)-1] );
-      if( substr[strlen(substr)-1]=='\n' ) substr[strlen(substr)-1] = '\0';
-      if(expose) printf("NOW : %d\n" , substr[strlen(substr)-1] );
-      strcat(outstr , substr);
-      strcat(outstr , " ");
+      else if(walked_alphanum && !walked_wsp){ // 2+nd alphanum 
+	iostr[left] = iostr[right]; // general case 
+	left++;
+      }
+      else if(!walked_alphanum && walked_wsp){
+	walked_alphanum = 1;
+	walked_wsp = 0;
+
+	// Tricky case of whitespace before first word : 
+	if(walked_first_word){
+	  iostr[left] = ' ';
+	  left++;
+	}
+	if(!walked_first_word) walked_first_word = 1;
+	
+	iostr[left] = iostr[right];
+	left++;
+      }
     }
-  }
-  
-  if(expose) {
-    printf("outstr : ");
-    printf("\"%s\"" , outstr);
+    // WHITESPACE
+    else{
+      if(!walked_wsp && !walked_alphanum){ // occurs once : very 1st char = whitespace ; no first word
+	walked_wsp = 1;
+	walked_alphanum = 0;
+	// left - stay ; right - do nothing , move on 
+      }
+      else if(!walked_wsp && walked_alphanum) {
+	walked_wsp = 1;
+	walked_alphanum = 0;
+	// Stay , make sure this isn't end of commands. 
+      }
+      else if(walked_wsp && !walked_alphanum){
+	// 2nd wsp in a row - do nothing , move on 
+      }
+    }
+    
+    right++;
   }
 
-  //outstr[strlen(outstr)-1] = '\0';
-  strcpy(iostr , outstr);
-  if(expose) {
-    printf("DOCTORED : ");
-    printf("\"%s\"\n" , iostr);
+  // wipe right to left (end to mid-mark) 
+  right--;
+  while(right>=left){
+    iostr[right] = '\0';
+    right--;
   }
-  
-  //int end = strlen(in_str)-1; // [0:c 1:a 2:t 3:\n]=4 ; 
 
-  /*
-  while(in_str[end]==' ' || in_str[end]=='\n' || in_str[end]=='\t') {
-    in_str[end]='\0';
-    end--;
-  }
-  */
-  
+  //printf("iostr : \"%s\"\n" , iostr);
+
   return iostr;
 }
 
