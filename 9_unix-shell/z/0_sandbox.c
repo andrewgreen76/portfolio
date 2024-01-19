@@ -1,32 +1,14 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/wait.h>
 
-int main(int argc , char *argv[]) {
-  printf("argc : %d\n" , argc);
-  
-  /*
-  char * args[] = {"/bin/ls",  NULL};
-  int status;
-  pid_t x = fork();
+int main(int argc, char *argv[]) {
+    // Calculate the size of the argv array
+    size_t size_of_argv = 0;
 
-  if(x==0){
-    printf("Child\n");
-    execv("/bin/ls", args);
-    //printf("Child finished\n");
-    //exit(0);
-  }
-  if(x==-1){
-    printf("Fail\n");    
-  }
-  else{
-    printf("Parent\n");
-    wait(&status);
-    printf("Parent woke up\n");
-  }
-  
-  printf("Finish line\n");    
-  */  
-  return 0;
+    for (int i = 0; i < argc; ++i) {
+        size_of_argv += sizeof(argv[i]);
+    }
+
+    printf("Size of argv array: %lu bytes\n", size_of_argv);
+
+    return 0;
 }

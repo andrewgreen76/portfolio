@@ -1,5 +1,8 @@
 #define  _GNU_SOURCE
 //#define  _POSIX_C_SOURCE 200809L
+#define CST_CMD 1
+#define FS_CMD 0
+
 #include "wish.h"
 #include <ctype.h>  // isspace
 #include <regex.h>  // regcomp, regexec, regfree
@@ -12,11 +15,11 @@
 
 // SHELL GETS LAUNCHED ONCE , IN ONE MODE. 
 int sh_mode = INTERACTIVE_MODE; // 1 - interactive , 2 - batch
-// global for the clean-up function in the header : 
-FILE * bat_ptr;
-char * ln = NULL;
 char path[BUFF_SIZE] = "/bin";
 int expose = 1;
+// made global for the clean-up function in the header : 
+FILE * bat_ptr;
+char * ln = NULL;
 
 // function definitions : 
 void interact();
@@ -105,14 +108,20 @@ void proc_cl() {
   }
   
   // WAIT FOR ALL CHILDREN TO TERMINATE :
-  int status = 0;
+  int status = 0;    // ??? 
+                     // then there is ret from WIFEXITED() 
+  int exit_code = 0; // exit code WEXITSTATUS() from the child 
   while (waitpid(-1, &status, 0) > 0) {
-    if ( !WIFEXITED(status) ) {
+    if ( WIFEXITED(status) ) {
+      exit_code = WEXITSTATUS(status);
+    }
+    else {
       printError();
       //printf("CHILD_TERM_ERR\n");
     }
   }
-  printf("All children finished\n");
+  
+  if(expose) printf("All children finished\n");
 } 
 
 // =================================================
@@ -120,31 +129,34 @@ void proc_cl() {
 // =================================================
 void test_cmd(char * cmd) {
   char * args[BUFF_SIZE];
-  char * str;
+  char * token;
   const char * delim = " ";
   int args_num = 0;
+  // Conflict of file operations to pass to execv() : 
   FILE * out = NULL;
-  
+  //int outputFile = 0; 
+    
   cmd = trim(cmd);
   if(expose) printf("INDIV. CMD STREAM : \"%s\" \n" , cmd);
 
-  while ( (str = strsep(&cmd, delim)) != NULL ) {
-    // checking on REDIRECTION , seeking OUTLOG : 
-    if(    strcmp(str,">")==0    &&    (str = strsep(&cmd, delim)) != NULL    &&    (out = fopen(str,"w"))!=NULL ) {break;}
+  // Collect tokens : 
+  while ( (token = strsep(&cmd, delim)) != NULL ) {
+    // checking on REDIRECTION ,          ensuring OUTLOG name                           
+    if(    strcmp(token,">")==0    &&    (token = strsep(&cmd, delim)) != NULL   ) {
+      out = fopen(token,"w");
+      //outputFile = open("output.txt", O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    }
+    
     // LOAD *args[] , COUNT args_num         
-    args[args_num] = str;
+    args[args_num] = token;
     if(expose) printf("args[%d] : \"%s\" \n" , args_num , args[args_num]);
     args_num++;
   }
 
   // built-in() -or- execv(path to cmd, args to proc) : 
   executeCommands(args , args_num , out); // per CMDLN or CMD ??
-
-  if ( (str = strsep(&cmd, delim)) != NULL ) {
-    printError();
-  }
   
-  printf("Command processed\n");
+  if(expose) printf("Command processed\n");
   exit(0); 
 }
 
@@ -152,17 +164,90 @@ void test_cmd(char * cmd) {
 // =========== Launch processes here : =============
 // =================================================
 void executeCommands(char *args[], int args_num, FILE *out) {
-  eval_cmd(args[0]);
+  int out_fileno = 0 , path_i = 0;
+  char good_dir_cmd[BUFF_SIZE];
+  char * token = NULL;
 
-  if(out) fclose(out);
+  // CUSTOM CMDS : cd , path , exit
+  if(eval_cmd(args[0]) == CST_CMD) {
+    if( strcmp(args[0] , "exit")==0 ){
+      exit(0);
+    }
+    else if( strcmp(args[0] , "cd")==0 ){
+      exit(0);
+    }
+    else { // cmd = "path" 
+      exit(0);
+    }
+  }  
+  // FILESYSTEM CMDS : ls , less , more , cat , ... 
+  else {
+    // Find given cmd in a path_dir : 
+    if( (path_i = searchPath(path , args[0]))==-1 ) { 
+      exit(1);
+    }
+
+    // If cmd is in a path_dir , ...  
+    char * shrink_buff = strdup(path);  
+    trim(shrink_buff);
+    for( int i=0 ; i<=path_i ; i++){
+      token = strsep(&shrink_buff, " ");
+    }
+    strcpy(good_dir_cmd , token); 
+    strcat(good_dir_cmd, "/");
+    strcat(good_dir_cmd, args[0]);
+    if(expose) printf("good_dir_cmd : \"%s\"\n" , good_dir_cmd);
+    free(shrink_buff);
+
+    // Tying STDOUT to the redirection file (if applicable)  
+    if(out){
+      out_fileno = fileno(out);
+      dup2(out_fileno, STDOUT_FILENO);
+      close(out_fileno);
+    }
+
+    // disappear into execv()
+    exit(0);
+  }
+
+  //  if(out) fclose(out);
+}
+
+// =================================================
+// ==== External/sys commands (NOT BUILT-IN) :  ====
+// =================================================
+//                                 args[0]
+int searchPath(char shrink_buff[], char *firstArg) {
+  int path_i = 0;          // ret dir_cmd index 
+  const char * delim = " ";
+  char * token = NULL;     // for stripping 
+  char dir_cmd[BUFF_SIZE]; // for construction 
+
+  while( (token = strsep(&shrink_buff, delim))!=NULL ) {
+    strcpy(dir_cmd , token); 
+    strcat(dir_cmd, "/");
+    strcat(dir_cmd, firstArg);
+
+    if(expose) printf("Searching dir_cmd : \"%s\" ...\n" , dir_cmd);
+    
+    if( access(dir_cmd, X_OK)==0 ){
+      if(expose) printf("External system command FOUND\n");
+      if(expose) printf("@ \"%s\"\n" , dir_cmd);
+      return path_i;
+    }
+    path_i++;
+  }
+
+  if(expose) printf("External system command NOT found\n");
+  return -1;
 }
 
 // =================================================
 // ============== Classify command :  ==============
 // =================================================
 int eval_cmd(char * cmd) {
-  if( !strcmp(cmd,"exit") || !strcmp(cmd,"cd") || !strcmp(cmd,"path") ) return 1;
-  else return 0;
+  if( strcmp(cmd,"exit")==0 || strcmp(cmd,"cd")==0 || strcmp(cmd,"path")==0 ) return CST_CMD;
+  else return FS_CMD;
 }
 
 // =================================================
@@ -177,13 +262,6 @@ int check_end() {
   else cl_state = getline( &ln , &len , bat_ptr); // load batch line ; ret 1 for blank , -1 for eof 
   
   return cl_state;
-}
-
-// =================================================
-// ===================== ??? : =====================
-// =================================================
-int searchPath(char path[], char *firstArg) {
-  return 0;
 }
 
 // =================================================
