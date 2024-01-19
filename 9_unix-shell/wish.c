@@ -1,3 +1,7 @@
+/*
+  wish.c - code by Andrew Green 
+*/
+
 #define  _GNU_SOURCE
 //#define  _POSIX_C_SOURCE 200809L
 #define CST_CMD 1
@@ -29,6 +33,7 @@ int check_end();
 void proc_cl();
 void test_cmd(char *);
 int eval_cmd(char *);
+void exec_cstcmd(char * [] , int); 
 
 // ===============================================================
 // =========================== MAIN : ============================
@@ -174,21 +179,16 @@ void executeCommands(char *args[], int args_num, FILE *out) {
   char * token = NULL;
 
   // CUSTOM CMDS : cd , path , exit
+  // NO REDIRECT for custom commands in this project. 
   if(eval_cmd(args[0]) == CST_CMD) {
-    if( strcmp(args[0] , "exit")==0 ){
-      exit(0);
-    }
-    else if( strcmp(args[0] , "cd")==0 ){
-      exit(0);
-    }
-    else { // cmd = "path" 
-      exit(0);
-    }
+    exec_cstcmd(args , args_num);    
   }  
-  // FILESYSTEM CMDS : ls , less , more , cat , ... 
+  // FILESYSTEM CMDS : ls , less , more , cat , ...
+  // Redirection implemented exclusively for fs_cmds in this project. 
   else {
     // Find given cmd in a path_dir : 
-    if( (path_i = searchPath(path , args[0]))==-1 ) { 
+    if( (path_i = searchPath(path , args[0]))==-1 ) {
+      printError(); 
       exit(1);
     }
 
@@ -214,8 +214,39 @@ void executeCommands(char *args[], int args_num, FILE *out) {
     // disappear into execv()
     exit(0);
   }
+}
 
-  //  if(out) fclose(out);
+// =================================================
+// =============== CUSTOM commands : ===============
+// =================================================
+void exec_cstcmd(char * args[] , int args_num){
+  //if(expose) printf("CUSTOM COMMAND : \"%s\"\n" , args[0]);
+  if(expose) printf("ARGS_NUM : %d\n" , args_num);
+  if( strcmp(args[0] , "exit")==0 ){
+    if( args_num>1 ) {
+      printError();
+      exit(1);
+    }
+    exit(0);
+  }
+  else if( strcmp(args[0] , "cd")==0 ){
+    if(args_num!=2) {
+      printError();
+      exit(1);
+    }
+    if( chdir(args[1])==-1 ) {   // """/home""" , etc.  
+      printError();
+      exit(1);
+    }
+  }
+  else { // "path"
+    strcpy(path , "");
+    for( int i=1 ; i != args_num ; i++ ){
+      if(i!=1) strcat(path , " ");
+      strcat(path , args[i]);
+    }
+    printf("path = \"%s\"\n" , path);
+  }
 }
 
 // =================================================
@@ -236,14 +267,14 @@ int searchPath(char shrink_buff[], char *firstArg) {
     if(expose) printf("Searching dir_cmd : \"%s\" ...\n" , dir_cmd);
     
     if( access(dir_cmd, X_OK)==0 ){
-      if(expose) printf("External system command FOUND\n");
+      if(expose) printf("External system command FOUND in path\n");
       if(expose) printf("@ \"%s\"\n" , dir_cmd);
       return path_i;
     }
     path_i++;
   }
 
-  if(expose) printf("External system command NOT found\n");
+  if(expose) printf("External system command NOT found in path\n");
   return -1;
 }
 

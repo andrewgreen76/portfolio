@@ -1,3 +1,9 @@
+/*
+  wish.h - code by Patrick Ester, et al. 
+         - NOT written by Andrew Green 
+         - wish.c - written by Andrew Green
+*/
+
 #include <pthread.h> // pthread_create, pthread_join
 #include <regex.h>   // regcomp, regexec, regfree
 #include <stdio.h>   // fopen, fclose, fileno, getline, feof
