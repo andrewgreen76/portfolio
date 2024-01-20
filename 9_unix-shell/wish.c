@@ -20,7 +20,7 @@
 // SHELL GETS LAUNCHED ONCE , IN ONE MODE. 
 int sh_mode = INTERACTIVE_MODE; // 1 - interactive , 2 - batch
 char path[BUFF_SIZE] = "/bin";
-int expose = 1;
+int expose = 0;
 // made global for the clean-up function in the header : 
 FILE * bat_ptr;
 char * ln = NULL;
@@ -220,18 +220,16 @@ void exec_fscmd(char *args[] , int args_num , FILE * out) {
     close(out_fileno);
   }
 
-  // Disappear into execv() :
-  /*
-    cmd_path
-    cmd_name : args[0]
-    args[] = { cmd_name , "-flag" , NULL }
+  /* ====================================== */
+  /* ======= Disappear into execv() ======= */
+  /* ====================================== */
+  args[args_num] = NULL; // a hack 
 
-    if ( execv(cmd_path , args)==-1) {} 
-  */
   if ( execv(cmd_path, args) == -1 ) {
-    printError();;
+    printError();
     exit(1);
   }
+  
   exit(0);
 }
 
