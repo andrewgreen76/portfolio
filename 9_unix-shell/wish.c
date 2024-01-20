@@ -34,6 +34,7 @@ void proc_cl();
 void test_cmd(char *);
 int eval_cmd(char *);
 void exec_cstcmd(char * [] , int); 
+void exec_fscmd(char * [] , int , FILE * ); 
 
 // ===============================================================
 // =========================== MAIN : ============================
@@ -171,49 +172,67 @@ void test_cmd(char * cmd) {
 }
 
 // =================================================
-// =========== Launch processes here : =============
+// ========== INTERPRET INDIV. COMMAND : ===========
 // =================================================
 void executeCommands(char *args[], int args_num, FILE *out) {
-  int out_fileno = 0 , path_i = 0;
-  char good_dir_cmd[BUFF_SIZE];
-  char * token = NULL;
-
-  // CUSTOM CMDS : cd , path , exit
-  // NO REDIRECT for custom commands in this project. 
+  
+  // CUSTOM CMDS - NO REDIRECT per the project 
   if(eval_cmd(args[0]) == CST_CMD) {
     exec_cstcmd(args , args_num);    
   }  
-  // FILESYSTEM CMDS : ls , less , more , cat , ...
-  // Redirection implemented exclusively for fs_cmds in this project. 
+  // FILESYSTEM CMDS - allow REDIRECTION per the project 
   else {
-    // Find given cmd in a path_dir : 
-    if( (path_i = searchPath(path , args[0]))==-1 ) {
-      printError(); 
-      exit(1);
-    }
-
-    // If cmd is in a path_dir , ...  
-    char * shrink_buff = strdup(path);  
-    trim(shrink_buff);
-    for( int i=0 ; i<=path_i ; i++){
-      token = strsep(&shrink_buff, " ");
-    }
-    strcpy(good_dir_cmd , token); 
-    strcat(good_dir_cmd, "/");
-    strcat(good_dir_cmd, args[0]);
-    if(expose) printf("good_dir_cmd : \"%s\"\n" , good_dir_cmd);
-    free(shrink_buff);
-
-    // Tying STDOUT to the redirection file (if applicable)  
-    if(out){
-      out_fileno = fileno(out);
-      dup2(out_fileno, STDOUT_FILENO);
-      close(out_fileno);
-    }
-
-    // disappear into execv()
-    exit(0);
+    exec_fscmd(args , args_num , out);    
   }
+}
+
+// =================================================
+// ============ FILESYSTEM commands :  =============
+// =================================================
+void exec_fscmd(char *args[] , int args_num , FILE * out) {
+  int out_fileno = 0 , path_i = 0;
+  char cmd_path[BUFF_SIZE];
+  char * dir_path = NULL;
+
+  // Find given cmd in a path_dir : 
+  if( (path_i = searchPath(path , args[0]))==-1 ) {
+    printError(); 
+    exit(1);
+  }
+
+  // If cmd is in a path_dir , ...  
+  char * shrink_buff = strdup(path);  
+  trim(shrink_buff);
+  for( int i=0 ; i<=path_i ; i++){
+    dir_path = strsep(&shrink_buff, " ");
+  }
+  strcpy(cmd_path , dir_path); 
+  strcat(cmd_path, "/");
+  strcat(cmd_path, args[0]);
+  if(expose) printf("cmd_path : \"%s\"\n" , cmd_path);
+  free(shrink_buff);
+
+  // ??? redirect() ??? 
+  // Tying STDOUT to the redirection file (if applicable)  
+  if(out){
+    out_fileno = fileno(out);
+    dup2(out_fileno, STDOUT_FILENO);
+    close(out_fileno);
+  }
+
+  // Disappear into execv() :
+  /*
+    cmd_path
+    cmd_name : args[0]
+    args[] = { cmd_name , "-flag" , NULL }
+
+    if ( execv(cmd_path , args)==-1) {} 
+  */
+  if ( execv(cmd_path, args) == -1 ) {
+    printError();;
+    exit(1);
+  }
+  exit(0);
 }
 
 // =================================================
