@@ -1,1 +1,5 @@
-Ben Eater's VGA "card" is designed to display images with the resolution of 100x75 and a 64-color range. Though something like this can be improved on, I feel like going further with this project would prove to be a waste of time as the VGA technology nowadays is pretty much obsolete. 
+Ben Eater's VGA "card" is designed to display images with the resolution of 100x75 and a 64-color range.
+Though something like this can be improved on, I feel like going further with this project would prove to be
+a waste of time as the VGA technology nowadays is pretty much obsolete. I did this for fun, because I wanted
+to learn some kind of video graphics technology, and because committing to learning how HDMI works promises
+to be a daunting task. 
