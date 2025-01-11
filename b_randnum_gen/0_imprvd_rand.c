@@ -2,7 +2,7 @@
 /* Compile and link with the <math.h> library with the prompt line below;
    otherwise the utilities will fail to produce an executable: 
 
-   $ gcc 5_imprand-until.c -lm 
+   $ gcc 5_imprvd_rand.c -lm 
 
    Then run "./a.out". 
 */

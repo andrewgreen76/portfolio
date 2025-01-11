@@ -1,0 +1,12 @@
+
+GitHub link to my portfolio: https://github.com/andrewgreen76/portfolio/tree/main
+
+List of personal/hobby projects: 
+ - solderless VGA graphics "card"
+ - programming a 16x2 character LCD in two different character generation modes
+ - solderless two-function calculator based on SAP-1 architecture (with EEPROM logic and an 8x8 RAM chip)
+ - soldered-up VT-16 AM/FM radio with a Si4836A10 receiver and an LM4863 power amplifier
+ - a real-mode bootloader
+ - custom Unix-style shell written in C 
+ - custom assembler written in Python 
+
